@@ -49,10 +49,7 @@ function connect(opts, cb) {
 			}));
 		}
 
-		opts.authtoken ?
-			authtoken(opts.authtoken, run, opts.configPath) :
-			run(null);
-
+		run(null);
 	});
 }
 
@@ -95,7 +92,14 @@ function runNgrok(opts, cb) {
 		return cb();
 	}
 
-	var start = ['start', '--none', '--log=stdout'];
+	var start = ['start'];
+
+	if (opts.authtoken) {
+		start.push('-authtoken=' + opts.authtoken);
+	}
+
+	start.push('--none');
+	start.push('--log=stdout')
 
 	if (opts.region) {
 		start.push('--region=' + opts.region);
@@ -194,25 +198,6 @@ function _runTunnel(opts, cb) {
 	retry();
 }
 
-function authtoken(token, cb, configPath) {
-	cb = cb || noop;
-	var authtoken = ['authtoken', token];
-	if (configPath) {
-		authtoken.push('--config=' + configPath);
-	}
-	var a = spawn(
-		bin,
-		authtoken,
-		{cwd: __dirname + '/bin'});
-	a.stdout.once('data', done.bind(null, null, token));
-	a.stderr.once('data', done.bind(null, new Error('cant set authtoken')));
-
-	function done(err, token) {
-		cb(err, token);
-		a.kill();
-	}
-}
-
 function disconnect(publicUrl, cb) {
 	cb = cb || noop;
 	if (typeof publicUrl === 'function') {
@@ -264,7 +249,6 @@ function kill(cb) {
 
 emitter.connect = connect;
 emitter.disconnect = disconnect;
-emitter.authtoken = authtoken;
 emitter.kill = kill;
 
 module.exports = emitter;
