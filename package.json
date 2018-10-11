@@ -1,5 +1,5 @@
 {
-  "name": "ngrok",
+  "name": "screener-ngrok",
   "version": "2.2.27",
   "description": "node wrapper for ngrok",
   "main": "index.js",
@@ -45,6 +45,6 @@
     "uuid": "^3.0.0"
   },
   "bin": {
-    "ngrok": "./bin/ngrok"
+    "screener-ngrok": "./bin/ngrok"
   }
 }
