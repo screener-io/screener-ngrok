@@ -1,6 +1,6 @@
 {
   "name": "screener-ngrok",
-  "version": "2.2.27",
+  "version": "2.2.28",
   "description": "node wrapper for ngrok",
   "main": "index.js",
   "types": "ngrok.d.ts",
