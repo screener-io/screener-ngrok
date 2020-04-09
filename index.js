@@ -6,10 +6,12 @@ var lock = require('lock')();
 var async = require('async');
 var uuid = require('uuid');
 var url = require('url');
+var fs = require('fs');
 
 var bin = './ngrok' + (platform === 'win32' ? '.exe' : '');
 var ready = /starting web service.*addr=(\d+\.\d+\.\d+\.\d+:\d+)/;
 var inUse = /address already in use/;
+var notReady = /ngrok is not yet ready to start tunnels/;
 
 var noop = function() {};
 var emitter = new Emitter().on('error', noop);
@@ -109,13 +111,26 @@ function runNgrok(opts, cb) {
 		start.push('--config=' + opts.configPath);
 	}
 
+	if (opts.logLevel) {
+		start.push('--log-level=' + opts.logLevel);
+	}
+
 	ngrok = spawn(
 			bin,
 			start,
 			{cwd: __dirname + '/bin'});
 
+	var logFn = function (data) {
+		ngrok.stdout.on('data', function (data) {
+			fs.appendFile(opts.logFile, data, (err) => {
+				if (err && !msg.match(notReady)) {
+					ngrok.stdout.removeListener(logFn);
+				}
+			})
+		})
+	}
 
-	ngrok.stdout.on('data', function (data) {
+	var scanFn = function (data) {
 		var msg = data.toString();
 		var addr = msg.match(ready);
 		if (addr) {
@@ -127,7 +142,14 @@ function runNgrok(opts, cb) {
 		} else if (msg.match(inUse)) {
 			done(new Error(msg.substring(0, 10000)));
 		}
-	});
+	}
+
+	ngrok.stdout.on('data', scanFn);
+
+	if (opts.logFile) {
+		console.log ("Registering a single listener");
+		ngrok.stdout.on('data', logFn);
+	}
 
 	ngrok.stderr.on('data', function (data) {
 		var info = data.toString().substring(0, 10000);
@@ -136,7 +158,7 @@ function runNgrok(opts, cb) {
 
 
 	function done(err) {
-		ngrok.stdout.removeAllListeners('data');
+		ngrok.stdout.removeListener('data', scanFn);
 		ngrok.stderr.removeAllListeners('data');
 		cb(err);
 	}
