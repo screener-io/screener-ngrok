@@ -10,6 +10,7 @@ var cdnPath = process.env.NGROK_CDN_PATH || '/c/4VmDzA7iaHb/ngrok-stable-';
 var cdnFiles = {
 	darwinia32:	cdn + cdnPath + 'darwin-386.zip',
 	darwinx64:	cdn + cdnPath + 'darwin-amd64.zip',
+	darwinarm64:	cdn + cdnPath + 'darwin-amd64.zip',
 	linuxarm:	cdn + cdnPath + 'linux-arm.zip',
 	linuxarm64:	cdn + cdnPath + 'linux-arm64.zip',
 	linuxia32:	cdn + cdnPath + 'linux-386.zip',
