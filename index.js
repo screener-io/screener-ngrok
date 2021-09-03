@@ -171,7 +171,7 @@ function _runTunnel(opts, cb) {
 				if (err) {
 					return cb(err);
 				}
-				var notReady500 = resp.statusCode === 500 && /panic/.test(body)
+				var notReady500 = resp.statusCode === 500 && /panic/.test(body);
 			  var notReady502 = resp.statusCode === 502 && body.details && body.details.err === 'tunnel session not ready yet';
 			  var notReady503 = resp.statusCode === 503 && body.details && body.details.err === 'a successful ngrok tunnel session has not yet been established';
 				var notReady = notReady500 || notReady502 || notReady503;
